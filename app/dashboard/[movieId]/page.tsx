@@ -32,7 +32,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-900 flex flex-col">
       
       <div className="flex-grow overflow-y-auto">
-        <MovieContentList movies={movies} />
+        <MovieContentList movies={movies} title={''} />
       </div>
     </div>
   );
