@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background-color: #141414; /* Netflix-like dark background */
+  color: #e5e5e5; /* Light text color for contrast */
+}
+
+.root {
+  background-color: #141414;
+}
+/* glass effect */
+.bg-glass {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Hero section specific styles */
+.hero {
+  height: 100vh;
+}
