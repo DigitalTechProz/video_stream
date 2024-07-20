@@ -1,12 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, PenTool, Cast, Menu } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, PenTool, Cast, Menu, LogOut, User } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useUser } from '@/hooks/useUser';
 
 interface DashboardNavbarProps {
   toggleSidebar: () => void;
 }
 
 const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ toggleSidebar }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const router = useRouter();
+  const supabaseClient = useSupabaseClient();
+  const { user } = useUser();
+
+
+  useEffect(() => {
+  
+
+    if (!user) {
+      router.push('/'); // Redirect to home page if not logged in
+      
+      toast.error('You must be logged in to access this page.')
+    }
+  }, [router, toast]);
+
+  const handleLogout = async () => {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Logged out successfully');
+    }
+    if (user) {
+      router.push('/');
+    }
+  };
+
   return (
     <div className="sticky top-0 z-50 px-4 py-2">
       <nav className="bg-gray-900 bg-opacity-30 backdrop-filter backdrop-blur-lg text-white rounded-md shadow-lg">
@@ -19,8 +53,8 @@ const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ toggleSidebar }) => {
               <Menu size={24} />
             </button>
             
-            <Link href="/dashboard" 
-               className="text-2xl font-bold">BuzzSA Stream
+            <Link href="/" className="text-2xl font-bold">
+              BuzzSA Stream
             </Link>
             
             <div className="relative hidden md:block">
@@ -41,15 +75,37 @@ const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ toggleSidebar }) => {
             <PenTool className="text-gray-400 hover:text-white cursor-pointer hidden sm:block transition-colors duration-200" size={20} />
             <Cast className="text-gray-400 hover:text-white cursor-pointer hidden sm:block transition-colors duration-200" size={20} />
             
-            <div className="flex items-center space-x-2 cursor-pointer group">
-              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center group-hover:bg-orange-400 transition-colors duration-200">
-                <span className="text-white font-semibold">P</span>
+            {user ? (
+              <div className="relative">
+                <div 
+                  className="flex items-center space-x-2 cursor-pointer group"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                >
+                  <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center group-hover:bg-orange-400 transition-colors duration-200">
+                    <User className="text-white" size={20} />
+                  </div>
+                  <svg className="w-4 h-4 text-gray-400 hidden sm:block group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-10">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                    >
+                      <LogOut className="mr-2" size={18} />
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
-              <svg className="w-4 h-4 text-gray-400 hidden sm:block group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
+                  ) : (
+                <button className="bg-gray-500 text-white px-4 py-2 rounded-full font-semibold hidden sm:block hover:bg-gray-400 transition-colors duration-200">
+                  Sign In
+                </button>
+              )}
+              </div>
         </div>
       </nav>
     </div>

@@ -1,6 +1,10 @@
 import React from 'react';
 import FooterWrapper from './components/FooterWrapper';
 import './globals.css'; // Import the global CSS file
+import SupabaseProvider from '@/providers/SupabaseProvider';
+import UserProvider from '@/providers/UserProvider';
+import ModalProvider from '@/providers/ModalProvider';
+import ToasterProvider from '@/providers/ToasterProvider';
 
 export const metadata = {
   title: 'BuzzSA Stream',
@@ -15,8 +19,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
-        <FooterWrapper />
+        <SupabaseProvider>
+          <ToasterProvider />
+          <UserProvider>
+            <ModalProvider />
+            {children}
+            <FooterWrapper />
+          </UserProvider>
+        </SupabaseProvider>
       </body>
     </html>
   );

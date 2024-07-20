@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Movie } from '@/app/types/movie';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
+import useAuthModal from '@/hooks/useAuthModal';
+import { useUser } from '@/hooks/useUser';
 
 interface MovieCardProps {
   movie: Movie;
@@ -12,6 +14,8 @@ interface MovieCardProps {
 
 const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
   const router = useRouter();
+  const { onOpen } = useAuthModal();
+  const { user } = useUser();
 
   const formatUrl = (url: string) => {
     if (url.startsWith('//')) {
@@ -21,7 +25,11 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
   };
 
   const handleCardClick = () => {
-    router.push(`/dashboard/${movie.apiVideoId}`);
+    if (user) {
+      router.push(`/dashboard/${movie.apiVideoId}`);
+    } else {
+      onOpen();
+    }
   };
 
   return (

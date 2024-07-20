@@ -2,10 +2,22 @@
 
 import React, { useEffect, useState } from 'react';
 import { fetchMovieThumbnails } from '@/utils/fetchThumbnail';
+import AuthModal from '@/app/components/AuthModal';
+import useAuthModal from '@/hooks/useAuthModal';
+import { useUser } from '@/hooks/useUser';
+import { useRouter } from 'next/navigation';
+import { Movie } from '@/app/types/movie';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  movie: Movie;
+}
+
+const Hero: React.FC<HeroProps> = ({ movie }) => {
   const [thumbnails, setThumbnails] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { isOpen, onOpen, onClose } = useAuthModal();
+  const router = useRouter();
+  const { user } = useUser();
 
   useEffect(() => {
     const fetchThumbnails = async () => {
@@ -28,6 +40,14 @@ const Hero: React.FC = () => {
     return () => clearInterval(interval);
   }, [thumbnails]);
 
+  const handleOpenBuzzStream = () => {
+    if (user) {
+      router.push(`/dashboard/${movie.apiVideoId}`);
+    } else {
+      onOpen();
+    }
+  };
+
   return (
     <div className="relative w-full h-screen flex items-center">
       <div className="absolute inset-0 overflow-hidden">
@@ -45,16 +65,20 @@ const Hero: React.FC = () => {
       </div>
       <div className="relative z-10 p-4 sm:p-8 md:p-12 lg:p-16 text-white max-w-3xl">
         <h1 className="text-xl sm:text-2xl md:text-4xl lg:text-6xl font-bold mb-2 sm:mb-4">
-          Wanna watch your favourate Buzz SA Series?
+          Wanna watch your favorite Buzz SA Series?
         </h1>
         <p className="text-sm sm:text-lg md:text-xl lg:text-2xl">
-          Enjoy your favourite Buzz SA series and movies.<br />
+          Enjoy your favorite Buzz SA series and movies.<br />
           You can start watching right now. Create your free account.
         </p>
-        <button className="mt-4 sm:mt-6 px-4 sm:px-6 py-2 sm:py-3 bg-yellow-500 text-black rounded-full text-sm sm:text-lg">
+        <button 
+          onClick={handleOpenBuzzStream}
+          className="mt-4 sm:mt-6 px-4 sm:px-6 py-2 sm:py-3 bg-yellow-500 text-black rounded-full text-sm sm:text-lg"
+        >
           Open BuzzSA Stream
         </button>
       </div>
+      <AuthModal isOpen={isOpen} onChange={(open) => !open && onClose()} />
     </div>
   );
 };
